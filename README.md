@@ -110,10 +110,10 @@ Output:
 ```
 As displayed above, the dates are calculated based on how many days away they are from day 0 of the dataset. Then we did the same thing on the median income dataset.   
 
-![Plot 2](imgs\BeforeInterpol.png)
+![Plot 2](imgs/BeforeInterpol.png)
 
 
-![Plot 3](imgs\AfterInterpol.png)
+![Plot 3](imgs/AfterInterpol.png)
 
 The first plot displayed above shows the median income data in its raw form (with missing data and `NAN`s) and the second plot shows the median income data after interpolation.
 
@@ -153,13 +153,13 @@ Orange Housing Price Linear Model:
 Above is the output for the Orange county housing prices and as you can see the Train MSE and the Test MSE are relatively close, meaning that our model is not overfitting. Now, we can observe that the MSE is extremely high. But that is becuase we are working with really large numbers in the house prices data set. So the slightest error squared can lead to a huge number. 
 
 
-![Plot 4](imgs\OrangeLinReg)
+![Plot 4](imgs/OrangeLinReg)
 
 
 The image above displays our linear regression model on the Orange County house prices dataset. We believe that it is a great fit for our dataset and it is not overfitting. 
 
 
-![Plot 5](imgs\OrangeMID)
+![Plot 5](imgs/OrangeMID)
 
 
 This image shows the linear regression model ran on the Orange County median income data set. Again, the linear model looks quite good and does not look to be under or overfitting.
