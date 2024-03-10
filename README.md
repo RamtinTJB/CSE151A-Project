@@ -7,7 +7,7 @@
 
 ## Data Exploration
 
-- [Link to the notebook](notebook.py)
+- [Link to the notebook](notebook.ipynb)
 
 General information about the "Housing Prices" dataset:
 - Shape: (408, 111)
