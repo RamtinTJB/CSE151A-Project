@@ -1,11 +1,19 @@
 # Predicting the Housing Affordability Index in California Counties
 
-## Dataset Links
+## Introduction
+
+[//]: # (Need to add to this for the final submission.)
+
+## Method
+
+### Dataset Links
 
 - [California Housing Prices from 1990-2023](https://carorg.sharepoint.com/:x:/s/CAR-RE-PublicProducts/EcOe903EpvtJmUv1AaJFwp8BRTYd7-S3dKLWEH-edY6Oig?e=5h3lSl)
 - [Median Income by Country from the Federal Reserve Economic Data](https://fred.stlouisfed.org/searchresults/?st=median%20income%20by%20county&t=ca&ob=sr&od=desc)
 
-## Data Exploration
+
+
+### Data Exploration
 
 - [Link to the notebook](notebook.ipynb)
 
@@ -79,7 +87,7 @@ After that, we can drop the rows that contain any NAs from the dataframes. Turne
 #### Scatter plotting each county
 Finally, we ran scatter on each county's housing prices to get a better of sense of them. The plots can be viewed in the notebook.
 
-## Data Preprocessing
+### Data Preprocessing
 
 For data preprocessing we are planning do to the following tasks:
 - Interpolate the missing data in the Tulare county (~1996-~2002)
@@ -118,7 +126,7 @@ As displayed above, the dates are calculated based on how many days away they ar
 
 The first plot displayed above shows the median income data in its raw form (with missing data and `NAN`s) and the second plot shows the median income data after interpolation.
 
-## Creating the First Model
+## The First Model
 
 For our first model we decided to do a linear regression. We ran a separate linear regression model on both the county median income as well as the housing prices. 
 
@@ -185,9 +193,99 @@ print(f'The Housing Affordability in {input_date.strftime("%B %Y")} is predicted
 ```
 
 
-## Goals for next milestone
+[//]: # (## Goals for next milestone)
 
-In conclusion for milestone 3, we can see that our linear regression model does a pretty good job of calculating the housing affordibility index. The regression lines look a good fit for our dataset and they don't see to be over or underfitting by much. The goal for the next milestone will be to train a Polynomial Regression model (can fit very well for data that isn't always fully linear) and a Lasso Regression model (it can help in identifying the most significant predictors). 
+[//]: # (In conclusion for milestone 3, we can see that our linear regression model does a pretty good job of calculating the housing affordibility index. The regression lines look a good fit for our dataset and they don't see to be over or underfitting by much. The goal for the next milestone will be to train a Polynomial Regression model (can fit very well for data that isn't always fully linear) and a Lasso Regression model (it can help in identifying the most significant predictors).)
+
+## Milestone 4
+
+### Model training code
+
+#### Housing Prices 
+
+```python
+# Housing Prices Polynomial Regression
+print("Housing Prices polynomial regression\n")
+
+for county in counties:
+    for deg in range(2, 6):
+        x = county_dfs[county]["DATE_ENC"].to_numpy().reshape(-1, 1)
+        y = county_dfs[county][county]
+        polynomial_features = PolynomialFeatures(degree=deg)
+        x_poly = polynomial_features.fit_transform(x)
+        lin_reg = LinearRegression()
+    
+        X_train, X_test, y_train, y_test = train_test_split(x_poly, y, test_size=0.1, random_state=42, shuffle=False)
+
+        lin_reg.fit(X_train, y_train)
+        y_train_pred = lin_reg.predict(X_train)
+        y_test_pred = lin_reg.predict(X_test)
+
+        print(f'{county} (Degree {deg})')
+        print(f'\tTrain MSE:    {mean_squared_error(y_train, y_train_pred)}')
+        print(f'\tTest  MSE:    {mean_squared_error(y_test, y_test_pred)}')
+        print(f'\tCoefficients: {lin_reg.coef_}')
+        print(f'\tIntercept:    {lin_reg.intercept_}')
+
+        yhat = lin_reg.predict(x_poly)
+
+        plt.scatter(county_dfs[county]["Dates"], county_dfs[county][county])
+        plt.plot(county_dfs[county]["Dates"], yhat, c='r', linewidth=3)
+        plt.title(f'{county} Housing Prices Polynomial Regression (Degree {deg})')
+        plt.xlabel('date')
+        plt.ylabel('Price in $')
+        plt.show()
+```
+
+#### Median Income
+
+```python
+# Median Income Polynomial Regression
+print("Median Income polynomial regression\n")
+
+for county in counties:
+    for deg in range(2, 6):
+        x = median_income_dict[county]['df']["DATE_ENC"].to_numpy().reshape(-1, 1)
+        y = median_income_dict[county]['df'][f'{county} Median Income']
+        polynomial_features = PolynomialFeatures(degree=deg)
+        x_poly = polynomial_features.fit_transform(x)
+        lin_reg = LinearRegression()
+    
+        X_train, X_test, y_train, y_test = train_test_split(x_poly, y, test_size=0.1, random_state=42, shuffle=False)
+
+        lin_reg.fit(X_train, y_train)
+        y_train_pred = lin_reg.predict(X_train)
+        y_test_pred = lin_reg.predict(X_test)
+
+        print(f'{county} (Degree {deg})')
+        print(f'\tTrain MSE:    {mean_squared_error(y_train, y_train_pred)}')
+        print(f'\tTest  MSE:    {mean_squared_error(y_test, y_test_pred)}')
+        print(f'\tCoefficients: {lin_reg.coef_}')
+        print(f'\tIntercept:    {lin_reg.intercept_}')
+
+        yhat = lin_reg.predict(x_poly)
+
+        plt.scatter(median_income_dict[county]['df']["Dates"], 
+                    median_income_dict[county]['df'][f'{county} Median Income'])
+        plt.plot(median_income_dict[county]['df']["Dates"], yhat, c='r', linewidth=3)
+        plt.title(f'{county} Median Income Polynomial Regression (Degree {deg})')
+        plt.xlabel('date')
+        plt.ylabel('Income in $')
+        plt.show()
+```
+
+#### Training and Test Error
+
+The Train Error for the polynomial regression didn't change all that much for the lower degrees (2-5). However, when attempting to train with higher degrees, 20 plus, resulted in terrible Training Error. Interestingly enough no matter the degree the Test Error was significally higher than the MSE for the training for any degree, particularly when in compared to the difference between training and test displayed by the linear regression model (Model 1). 
+
+#### Model Fit
+
+As the degrees increased the model overfit more and more, which was emphasized by the fact that the difference in the MSE between the training and test only increased as the degree rose.  
+
+### Conclusion
+
+In conclusion for milestone 4, we can see that our linear regression model does a significally better job in calculating the housing affordibility index. The polynolmial regression lines seemed to overfit to the training data no matter what we did. Since the degree explodes from being roughly 4 times worse for degree 4 to 100 time worse for degree 5 we deemed any attempt to increase the efficency as futile. For the next model we plan on performing a lasso regression with hyperparameter tuning on the strength of regularization. 
+
 
 
 
