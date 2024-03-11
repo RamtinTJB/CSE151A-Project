@@ -195,9 +195,7 @@ print(f'The Housing Affordability in {input_date.strftime("%B %Y")} is predicted
 
 [//]: # (## Goals for next milestone)
 
-[//]: # (In conclusion for milestone 3, we can see that our linear regression model does a pretty good job of calculating the housing affordibility index. The regression lines look a good fit for our dataset and they don't see to be over or underfitting by much. The goal for the next milestone will be to train a Polynomial Regression model (can fit very well for data that isn't always fully linear) and a Lasso Regression model (it can help in identifying the most significant predictors).)
-
-## Milestone 4
+## Second Model
 
 ### Model training code
 
@@ -276,7 +274,20 @@ for county in counties:
 
 #### Training and Test Error
 
-The Train Error for the polynomial regression didn't change all that much for the lower degrees (2-5). However, when attempting to train with higher degrees, 20 plus, resulted in terrible Training Error. Interestingly enough no matter the degree the Test Error was significally higher than the MSE for the training for any degree, particularly when in compared to the difference between training and test displayed by the linear regression model (Model 1). 
+The Train Error for the polynomial regression didn't change all that much for the lower degrees (2-5). However, when attempting to train with higher degrees, 20 plus, resulted in terrible Training Error. Interestingly enough no matter the degree the Test Error was significally higher than the MSE for the training for any degree, particularly when in compared to the difference between training and test displayed by the linear regression model (Model 1), which is an indicator of overfitting for our polynomial regression models. 
+
+Here is an example:
+
+```
+Los Angeles (Degree 5)
+	Train MSE:    5822969226.0866
+	Test  MSE:    145297813746.47656
+	Coefficients: [ 0.00000000e+00 -6.49643757e-06 -2.08439554e-02  1.24560348e-05
+ -1.84654579e-09  8.36327269e-14]
+	Intercept:    196007.91999225406
+```
+
+![Polynomial overfitting](imgs/polynomial_overfitting_plot.png)
 
 #### Model Fit
 
