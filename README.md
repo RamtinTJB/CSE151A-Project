@@ -297,8 +297,7 @@ As the degrees increased the model overfit more and more, which was emphasized b
 
 In conclusion for milestone 4, we can see that our linear regression model does a significally better job in calculating the housing affordibility index. The polynolmial regression lines seemed to overfit to the training data no matter what we did. Since the degree explodes from being roughly 4 times worse for degree 4 to 100 time worse for degree 5 we deemed any attempt to increase the efficency as futile. For the next model we plan on performing a lasso regression with hyperparameter tuning on the strength of regularization. 
 
-
-
+## Third Model
 
 ## Group Members
 
