@@ -1,19 +1,18 @@
-# Predicting the Housing Affordability Index in California Counties
+# Introduction
 
-## Introduction
+The purpose of this project is to create an accurate model to predict the housing affordibility index based on housing data and median income. We decided to narrow down the scope of our project to cover only 5 counties; San Diego, Los Angeles, Orange, Tulare, San Francisco. 
 
-[//]: # (Need to add to this for the final submission.)
+As people who have moved to California, we understand that it is difficult to find a county where housing is affordable. So we decided to create a model that can help us ascertain a county with a reasonable housing affordibility index in the future years. Although our models are not perfect, they do represent a true trend in housing and median income that can help inform people that wish to live in California where they can expect more affordable housing to be. One unexpected broader impact is that our model can be used to determine which counties are the best to invest real estate into.
 
-## Method
+# Method:
+## Data Exploration
 
-### Dataset Links
+### Data
 
 - [California Housing Prices from 1990-2023](https://carorg.sharepoint.com/:x:/s/CAR-RE-PublicProducts/EcOe903EpvtJmUv1AaJFwp8BRTYd7-S3dKLWEH-edY6Oig?e=5h3lSl)
 - [Median Income by Country from the Federal Reserve Economic Data](https://fred.stlouisfed.org/searchresults/?st=median%20income%20by%20county&t=ca&ob=sr&od=desc)
 
-
-
-### Data Exploration
+### Results / Figures
 
 - [Link to the notebook](notebook.ipynb)
 
@@ -26,68 +25,7 @@ Out of these columns, only indices [0, 62] are valid and everything after that i
 
 Each row of the data represents the median prices of housing in California counties in a specific Year-Month, from Jan-1990 to Dec-2023.
 
-#### Reconstruct the Date column
-The "Mon-Yr" column in the original csv file contained seemingly random numbers, so we created a new column called "Dates" with actual Python `datetime` objects so we can plot our data as a time series. Here is the code for this:
-
-```Python
-from datetime import datetime
-
-dates_arr = [""] * 408
-for year_offset in range(34):
-    for month in range(12):
-        dates_arr[year_offset*12 + month] = datetime(year=1990+year_offset, month=month+1, day=1)
-
-house_prices["Dates"] = dates_arr
-```
-
-#### Choosing 5 counties
-Our dataset contains information from every single county in California. For the sake of this project, we decided to focus on 5 of them, but our approach can be generalized to any of the counties.
-
-The counties that we chose are:
-- San Diego
-- Los Angeles
-- San Francisco
-- Orange
-- Tulare
-
-#### Plotting the prices and making observations
-The code we used to plot the prices:
-```Python
-plt.rcParams["figure.figsize"] = (7,6)
-
-for county in counties:
-    plt.plot(house_prices["Dates"], house_prices[county], label=county)
-
-plt.axvline(datetime(year=2007, month=7, day=1)) # August 2007
-plt.axvline(datetime(year=2008, month=9, day=1)) # September 2008
-plt.text(datetime(year=2001, month=1, day=1), 1.5e6, "Financial", size=12, c='b')
-plt.text(datetime(year=2002, month=1, day=1), 1.4e6, "Crisis", size=12, c='b')
-
-plt.axvline(datetime(year=2022, month=4, day=1), c='r')
-plt.text(datetime(year=2016, month=1, day=1), 2e6, "COVID-19", size=12, c='r')
-
-plt.xlabel("Year")
-plt.ylabel("Price")
-plt.legend()
-plt.show()
-```
-
-![Plot 1](imgs/Plot1.png)
-
-**Some interesting observations we made**:
-- During the financial crisis which started at around August 2007 and ended at around September 2008, there was a massive drop in housing prices. The blue vertical lines represent this timeline.
-- The housing prices peaked in most couties during COVID which is represented by the red vertical line
-- Tulare county is missing some data from ~1996 to ~2002
-
-#### Separating each of the 5 counties into their own DataFrame
-Since we might have to do different kinds of preprocessing steps on each county, it's convenient to have each county in a different dataframe.
-
-After that, we can drop the rows that contain any NAs from the dataframes. Turned out that Tulare county was the only such county with 76 NAs.
-
-#### Scatter plotting each county
-Finally, we ran scatter on each county's housing prices to get a better of sense of them. The plots can be viewed in the notebook.
-
-### Data Preprocessing
+## Preprocessing
 
 For data preprocessing we are planning do to the following tasks:
 - Interpolate the missing data in the Tulare county (~1996-~2002)
@@ -95,10 +33,12 @@ For data preprocessing we are planning do to the following tasks:
 - Normalize the data if needed.
 - Preprocess the median income data for the 5 chosen counties
 
-## Finishing up Data Preprocessing
 - Interpolated the missing data points for Tulare county
 - Changed the column names for each county for the median income data set and also changed the date to Python's datetime object
 - Changed the data type of the median income from string to integer
+
+
+### Steps / Sample output of your final dataframe
 
 Then we moved onto encoding the dates for the housing prices and the median income. Basically, what we did was that we changed the first date in the data set as day 0 and then we calculated every later date based on that. 
 
@@ -126,7 +66,9 @@ As displayed above, the dates are calculated based on how many days away they ar
 
 The first plot displayed above shows the median income data in its raw form (with missing data and `NAN`s) and the second plot shows the median income data after interpolation.
 
-## The First Model
+
+
+## Model 1
 
 For our first model we decided to do a linear regression. We ran a separate linear regression model on both the county median income as well as the housing prices. 
 
@@ -147,55 +89,7 @@ for county in counties:
 
 This is the code we used to create our model for the housing prices. Since we are doing five different counties, we decided to create a dictionary of models where we have a separate linear regression model for each county. Then we basically used the same code to create five separate linear regression models for the median income.
 
-### Evaluating the model
-
-We used mean squared error for our loss function. Our test mse was very close to the train mse. 
-
-```
-Orange Housing Price Linear Model:
-	Train MSE:   13876777128.553144
-	Test  MSE:   14064546197.695322
-	Coefficient: 76.00820514368324
-	Intercept:   87934.00198478042
-```
-
-Above is the output for the Orange county housing prices and as you can see the Train MSE and the Test MSE are relatively close, meaning that our model is not overfitting. Now, we can observe that the MSE is extremely high. But that is becuase we are working with really large numbers in the house prices data set. So the slightest error squared can lead to a huge number. 
-
-
-
-<img src="imgs/OrangeLinReg.png" width="700">
-
-The image above displays our linear regression model on the Orange County house prices dataset. We believe that it is a great fit for our dataset and it is not overfitting. 
-
-
-<img src="imgs/OrangeMID.png" width="700">
-
-This image shows the linear regression model ran on the Orange County median income data set. Again, the linear model looks quite good and does not look to be under or overfitting.
-
-
-Lastly, after we created our models, we predict the value given an interest rate , the date, and the county.
-
-We then plug those predicted values and the input into the House Affordibility Index equation and output the index. 
-
-This is the code we used to compute the housing affordibility index:
-
-```py
-encoded_date_income = int((input_date - median_income_dict[input_county]["df"]["Dates"][0]).days)
-encoded_date_housing = int((input_date - county_dfs[input_county]["Dates"][0]).days)
-
-median_income = linear_dict[f'{input_county}_mi'].predict(np.array([encoded_date_income]).reshape(-1,1))
-housing_price = linear_dict[f'{input_county}_hp'].predict(np.array([encoded_date_housing]).reshape(-1, 1)) 
-
-pmt = housing_price * 0.8 * (interest_rate / 12) / (1-(1/((1+interest_rate/12)**360)))
-qinc = pmt * 48
-hai = median_income / qinc * 100
-print(f'The Housing Affordability in {input_date.strftime("%B %Y")} is predicted to be {hai[0]:.4}%')
-```
-
-
-[//]: # (## Goals for next milestone)
-
-## Second Model
+## Model 2
 
 ### Model training code
 
@@ -272,9 +166,88 @@ for county in counties:
         plt.show()
 ```
 
-#### Training and Test Error
+For the second model, we decided to use polynomial regression. We decided to use a nested for-loop to test a number of degrees for each county to potentially account for under or overfitting and pick the best model. 
 
-The Train Error for the polynomial regression didn't change all that much for the lower degrees (2-5). However, when attempting to train with higher degrees, 20 plus, resulted in terrible Training Error. Interestingly enough no matter the degree the Test Error was significally higher than the MSE for the training for any degree, particularly when in compared to the difference between training and test displayed by the linear regression model (Model 1), which is an indicator of overfitting for our polynomial regression models. 
+## Model 3
+
+Model training code:
+
+```py
+from sklearn.tree import DecisionTreeRegressor
+
+county = "San Diego"
+
+x = county_dfs[county]["DATE_ENC"].to_numpy()
+y = county_dfs[county][county].to_numpy()
+
+for depth in range(1, 10):
+    model = DecisionTreeRegressor(max_depth=depth)
+    model.fit(x.reshape(-1, 1), y)
+    
+    y_pred_train = model.predict(x.reshape(-1, 1))
+    
+    plt.scatter(county_dfs[county]["Dates"], y)
+    plt.plot(county_dfs[county]["Dates"], y_pred_train, c='r')
+
+    plt.title(f'{county} Decision Tree Regressor with max_depth={depth}')
+    plt.xlabel("Year")
+    plt.ylabel("Price in $")
+    
+    plt.show()
+```
+
+For the third model, we decided to use a Decision Tree Regression. We used a for-loop to test out different max depths for the `DecisionTreeRegressor` to test out the fit of our model on the dataset and eventually be able to pick the best one.
+
+# Result
+## Model 1 Results / Figures
+
+We used mean squared error for our loss function. Our test mse was very close to the train mse. 
+
+```
+Orange Housing Price Linear Model:
+	Train MSE:   13876777128.553144
+	Test  MSE:   14064546197.695322
+	Coefficient: 76.00820514368324
+	Intercept:   87934.00198478042
+```
+
+Above is the output for the Orange county housing prices and as you can see the Train MSE and the Test MSE are relatively close, meaning that our model is not overfitting. Now, we can observe that the MSE is extremely high. But that is becuase we are working with really large numbers in the house prices data set. So the slightest error squared can lead to a huge number. 
+
+
+
+<img src="imgs/OrangeLinReg.png" width="700">
+
+The image above displays our linear regression model on the Orange County house prices dataset. We believe that it is a great fit for our dataset and it is not overfitting. 
+
+
+<img src="imgs/OrangeMID.png" width="700">
+
+This image shows the linear regression model ran on the Orange County median income data set. Again, the linear model looks quite good and does not look to be under or overfitting.
+
+
+Lastly, after we created our models, we predict the value given an interest rate , the date, and the county.
+
+We then plug those predicted values and the input into the House Affordibility Index equation and output the index. 
+
+This is the code we used to compute the housing affordibility index:
+
+```py
+encoded_date_income = int((input_date - median_income_dict[input_county]["df"]["Dates"][0]).days)
+encoded_date_housing = int((input_date - county_dfs[input_county]["Dates"][0]).days)
+
+median_income = linear_dict[f'{input_county}_mi'].predict(np.array([encoded_date_income]).reshape(-1,1))
+housing_price = linear_dict[f'{input_county}_hp'].predict(np.array([encoded_date_housing]).reshape(-1, 1)) 
+
+pmt = housing_price * 0.8 * (interest_rate / 12) / (1-(1/((1+interest_rate/12)**360)))
+qinc = pmt * 48
+hai = median_income / qinc * 100
+print(f'The Housing Affordability in {input_date.strftime("%B %Y")} is predicted to be {hai[0]:.4}%')
+```
+
+## Model 2 Results / Figures
+
+The Train Error for the polynomial regression didn't change all that much for the lower degrees (2-5). However, when attempting to train with higher degrees, 20 plus, resulted in terrible Training Error. As for the Test Error, it was higher in all instances. Not surprisingly, as the degree increased, so did the Test Error, suggesting that there is overfitting.
+
 
 Here is an example:
 
@@ -287,20 +260,49 @@ Los Angeles (Degree 5)
 	Intercept:    196007.91999225406
 ```
 
-![Polynomial overfitting](imgs/polynomial_overfitting_plot.png)
+<img src="imgs/polynomial_overfitting.png" width="700">
 
-#### Model Fit
 
-As the degrees increased the model overfit more and more, which was emphasized by the fact that the difference in the MSE between the training and test only increased as the degree rose.  
+## Model 3 Results / Figures
 
-### Conclusion
+For our third model, we decided to use a Decision Tree Regressor. As displayed in the image, this model is overfitting on our dataset. That is because of the nature of our data and the fact that it has only one feature. The accuracy of this model on unseen data was 0. The reason behind this is the fact that our house prices are down to the dollar. 
 
-In conclusion for milestone 4, we can see that our linear regression model does a significally better job in calculating the housing affordibility index. The polynolmial regression lines seemed to overfit to the training data no matter what we did. Since the degree explodes from being roughly 4 times worse for degree 4 to 100 time worse for degree 5 we deemed any attempt to increase the efficency as futile. For the next model we plan on performing a lasso regression with hyperparameter tuning on the strength of regularization. 
+<img src="imgs/DTR.png" width="700">
 
-## Third Model
+We also tried to run the same model on our dataset using lower depths. 
 
-## Group Members
+<img src="imgs/DTR2.png" width="700">
 
-- Ramtin Tajbakhsh - rtajbakhsh@ucsd.edu
-- Ali Mohammadiasl - amohammadiasl@ucsd.edu
-- Welokiheiakea'eloa Gosline-Niheu - wgoslineniheu@ucsd.edu
+The image above is the model ran with a max depth of 2. In this case we can observe that the model is underfitting. This pattern follows the whole way. As the max depth increases, the model starts to overfit more and more, ultimately connecting all the dots.
+
+In the end the accuracy was zero for any variance of the data or model that we attempted. For varying depths there was no increase to the accuracy because each date is a categorical value. We thought about changing the time intervals to round to nearest month and nearest 6 months, but still didn't any positive results. one leaf per date
+
+# Discussion and Conclusion
+
+For the three different models that we made and tested, we used MSE to evaluate their validity. The First Model, with Linear Regression, was by far the most accurate when it came to Test Error. The Second Model, with Polynomial Regression, only got worse as we attempted to tweek the degree, with the lowest degree being the best fit. The Third Model, with a Decision Tree Regression, didn't correctly predict any of the housing prices based on thie given test dates.
+
+Model three was by far our worst model. The Decision Tree Regressor overfit way too much and gave us terrible accuracy. We attempted to change the maximum depth of the Devision Tree Regressor to try to address the overfitting, however, no value that we gave the depth worked. 
+
+Model two was an okay model, however, there was definitely overfitting. As the degree increased for the polynomial regression, the model overfit more. Again, we tried to address the overfitting by trying out different degrees, however, even our best model did not have great Test MSE.
+
+For possible follow ups, we could look into different regression models. Also it would be interesting to use a more robust dataset with this new models to possible create a generalized housing index predictor.
+
+In conclusion, model one, which we used linear regression in, gave us the best results. The train and test MSE were very close and we could observer just by looking at the graph that the model seems like a right fit. The test and train MSE may seem very high for the linear regression model (as they are in millions), however since our dataset is in hundreds of thousands, our error function is MSE, the values get squard, resulting in a huge number.  
+
+
+
+# Collaboration
+
+Ali Mohammadiasl - amohammadiasl@ucsd.edu
+
+- Wrote model 2 and helped write the README 
+
+Ramtin Tajbakhsh - rtajbakhsh@ucsd.edu
+
+- Wrote model 1 and 3 and helped write the README
+
+Welokiheiakeaeloa Gosline-Niheu  wgoslineniheu@ucsd.edu
+
+- Wrote the project abstract for milestone 1 and helped with the README
+
+We also all looked into different datasets in preparation for the projects.
