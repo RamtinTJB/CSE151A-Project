@@ -260,7 +260,7 @@ Los Angeles (Degree 5)
 	Intercept:    196007.91999225406
 ```
 
-<img src="imgs/polynomial_overfitting.png" width="700">
+<img src="imgs/polynomial_overfitting_plot.png" width="700">
 
 
 ## Model 3 Results / Figures
